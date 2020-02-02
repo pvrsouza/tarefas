@@ -1,30 +1,64 @@
 <template>
   <div id="app">
     <h1>Tarefas</h1>
+    <TaskProgress :progress="progress" />
     <NewTask @taskAdded="addTask" />
-    <TaskGrid :tasks="tasks" />
+    <TaskGrid :tasks="tasks" @taskDelete="taskDelete" @taskStateChanged="toggleTaskState" />
   </div>
 </template>
 
 <script>
 import TaskGrid from "./components/TaskGrid";
 import NewTask from "./components/NewTask";
+import TaskProgress from "./components/TaskProgress";
+
 export default {
-  components: { TaskGrid, NewTask },
+  components: { TaskGrid, NewTask, TaskProgress },
   data() {
     return {
       tasks: [
-        { name: "Lavar a louça", pending: false },
-        { name: "Comprar blusa", pending: true }
+        /* { name: "Lavar a louça", pending: false },
+        { name: "Comprar blusa", pending: true } */
       ]
     };
+  },
+  created() {
+    const json = localStorage.getItem("tasks");
+    this.tasks = JSON.parse(json) || [];
   },
   methods: {
     addTask(task) {
       const sameName = t => t.name === task.name;
       const reallyNew = this.tasks.filter(sameName).length == 0;
       if (reallyNew) {
-        this.tasks.push({ name: task.name, pending: task.pendind || true });
+        this.tasks.push({ name: task.name, pending: task.pending || true });
+      }
+    },
+    taskDelete(i) {
+      this.tasks.splice(i, 1);
+    },
+    toggleTaskState(i) {
+      this.tasks[i].pending = !this.tasks[i].pending;
+    }
+  },
+  computed: {
+    progress() {
+      const total = this.tasks.length;
+      const done = this.tasks.filter(t => !t.pending).length;
+
+      return Math.round((done / total) * 100) || 0;
+    }
+  },
+  watch: {
+    //Desse jeito ele não observa as alterações dentro do array
+    /* tasks() {
+      localStorage.setItem("tasks", JSON.stringify(this.tasks));
+    } */
+
+    tasks: {
+      deep: true,
+      handler() {
+        localStorage.setItem("tasks", JSON.stringify(this.tasks));
       }
     }
   }

@@ -1,5 +1,6 @@
 <template>
-  <div class="task" :class="stateClass">
+  <div class="task" :class="stateClass" @click="$emit('taskStateChanged', task)">
+    <span @click.stop="$emit('taskDelete', task)" class="close">x</span>
     <span>{{ task.name }}</span>
   </div>
 </template>
@@ -25,6 +26,7 @@ export default {
 
 <style>
 .task {
+  position: relative;
   /* Indica que o tamanho do elemento não é só a parte interna e sim as bordas tb */
   box-sizing: border-box;
   width: 350px;
@@ -40,14 +42,34 @@ export default {
   align-items: center;
   /* margin: 10px; */
 }
-.pending{
+.pending {
   border-left: 12px solid #b73229;
   background-color: #f44336;
 }
-.done{
-  color: #DDD;
+.done {
+  color: #ddd;
   border-left: 12px solid #0a8f08;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   text-decoration: line-through;
+}
+.pending .close {
+  background-color: #b73229;
+}
+
+.done .close {
+  background-color: #0a8f08;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  height: 20px;
+  width: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
 }
 </style>
